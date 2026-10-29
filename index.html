@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>XIII — ONLY THE CHOSEN KNOW | Local Storage</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--black:#000;--white:#fff}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--white);color:var(--black);overflow-x:hidden}
+header{padding:12px 4%;display:flex;justify-content:space-between;align-items:center;background:var(--black);border-bottom:2.5px solid var(--black);position:sticky;top:0;z-index:20;color:#fff}
+.logo{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:1px;display:flex;gap:2px}
+.logo span:nth-child(1){color:#fff}.logo span:nth-child(2){color:#ff2a2a}.logo span:nth-child(3){color:#3b82f6}.logo span:nth-child(4){color:#ff2a2a}
+.mini-nav{display:flex;gap:6px}.mini-nav a{color:#fff;text-decoration:none;font-size:11px;font-weight:800;padding:6px 10px;border:1.5px solid #fff;border-radius:999px}
+@media(max-width:800px){.mini-nav{display:none}}
+.header-right{display:flex;gap:8px;align-items:center}
+.admin-pill{background:#fff;color:#000;border:1.5px solid #fff;padding:7px 13px;border-radius:999px;font-weight:800;font-size:11px;cursor:pointer;text-decoration:none}
+.cart-btn{background:#fff;color:#000;border:2px solid #000;padding:6px 14px;border-radius:999px;font-weight:900;cursor:pointer;box-shadow:3px 3px 0 #000}
+.marquee{background:#000;color:#fff;overflow:hidden;white-space:nowrap;padding:8px 0;border-bottom:2px solid #000;border-top:1px solid #fff}
+.marquee-track{display:inline-flex;animation:scroll 25s linear infinite;font-size:11px;font-weight:800;letter-spacing:2px}
+.hero{background:#000;color:#fff;display:flex;justify-content:space-between;padding:28px 4%;border-bottom:3px solid #000;position:relative;overflow:hidden}
+.hero-left{max-width:520px}
+.badge{border:1.5px solid #fff;color:#fff;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;display:inline-block;margin-bottom:10px}
+.hero h1{font-family:'Anton',sans-serif;font-size:38px;font-weight:900;line-height:.9;letter-spacing:-1px}
+.hero h1 span{background:#fff;color:#000;padding:0 8px;border-radius:8px}
+.rating-big{margin:10px 0;font-size:12px}
+.hero-float{position:relative;width:140px;height:150px}
+.float-card{position:absolute;background:#fff;color:#000;border:2px solid #000;border-radius:12px;padding:8px 12px;font-weight:900;font-size:11px;box-shadow:4px 4px 0 #000;animation:float 3s ease-in-out infinite;cursor:pointer;user-select:none;transition:.15s;z-index:2}
+.f1{top:0;left:0;z-index:3}.f1.burst{animation:burst .6s cubic-bezier(.34,1.56,.64,1)}
+.f2{top:60px;left:20px;background:#fff;color:#000;border-color:#000;animation-delay:.5s}.f2.newPulse{animation:newFlash .8s ease 2}
+.f3{top:110px;left:50px;background:#000;color:#fff;border-color:#fff;display:flex;align-items:center;gap:6px;animation-delay:1s;box-shadow:4px 4px 0 #111, -1.5px 0 0 #25F4EE, 1.5px 0 0 #FE2C55}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1deg)}}
+@keyframes burst{0%{transform:scale(1)}30%{transform:scale(1.4) rotate(8deg)}60%{transform:scale(.9) rotate(-8deg)}100%{transform:scale(1)}}
+@keyframes newFlash{0%,100%{background:#fff;color:#111;box-shadow:4px 4px 0 #111}50%{background:#FE2C55;color:#fff;box-shadow:6px 6px 0 #000;transform:scale(1.15)}}
+@keyframes popIn{0%{transform:scale(.5) translateY(30px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0) scale(1)}100%{transform:translateY(100vh) rotate(720deg) scale(0)}}
+.confetti{position:fixed;width:8px;height:8px;z-index:9999;pointer-events:none;animation:confettiFall 1.2s ease-out forwards}
+.shop-section{padding:14px 4% 30px;background:#fff}
+.section-top{max-width:1100px;margin:0 auto 10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.section-top h3{font-weight:900;letter-spacing:1px}
+.cat-filter{display:flex;gap:8px;overflow:auto;padding:8px 0 10px}
+.cat-btn{border:2px solid #000;padding:7px 14px;border-radius:999px;background:#fff;font-weight:800;font-size:11px;cursor:pointer;white-space:nowrap;transition:.25s}
+.cat-btn.active,.cat-btn:hover{background:#000;color:#fff;transform:translateY(-2px);box-shadow:3px 3px 0 #000}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:1100px;margin:0 auto}
+@media(min-width:700px){.products{grid-template-columns:repeat(3,1fr);gap:14px}}
+.card{background:#fff;border:2px solid #000;border-radius:16px;overflow:hidden;box-shadow:4px 4px 0 #000;padding-bottom:10px;text-align:center;transition:.3s;cursor:pointer;position:relative;animation:cardIn .5s ease both}
+.card img{width:100%;height:170px;object-fit:cover;border-bottom:2px solid #000}
+.card h4{margin:8px 0 2px;font-size:13px;font-weight:800}
+.stock{font-size:10px;padding:3px 8px;border-radius:999px;border:1.5px solid #000;font-weight:700;display:inline-block;margin:4px 0}
+.like-small{position:absolute;top:8px;left:8px;background:#fff;border:1.5px solid #000;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:800}
+.info-section,.track-section,.contact-section{max-width:1100px;margin:12px auto;background:#fff;border:2px solid #000;border-radius:16px;padding:14px;box-shadow:4px 4px 0 #000}
+.info-card{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:2px solid #000;font-weight:600;font-size:13px}
+.ic{width:28px;height:28px;background:#000;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:12px}
+.map{background:#000;color:#fff}
+.track-row{display:flex;gap:8px;margin-top:8px}.track-row input{flex:1}
+.btn-black{background:#000;color:#fff;border:2px solid #000;padding:11px 18px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:3px 3px 0 #000;text-align:center}
+.btn-black.full{width:100%;display:block}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:12px 0;z-index:50}
+.hidden{display:none!important}
+.modal-content{background:#fff;width:96%;max-width:440px;border-radius:16px;padding:18px 14px 90px 14px;max-height:85vh;overflow-y:auto;border:2.5px solid #000;box-shadow:8px 8px 0 #000;position:relative;margin:auto}
+.close{position:absolute;top:10px;right:12px;background:#000;color:#fff;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;cursor:pointer;font-weight:900;z-index:2;border:1px solid #fff}
+.m-img{width:100%;height:210px;object-fit:cover;border-radius:12px;border:2px solid #000}
+.thumbs{display:flex;gap:6px;margin:10px 0;overflow:auto}
+.thumbs img{width:56px;height:56px;border-radius:10px;border:2px solid #000;object-fit:cover;cursor:pointer}
+.thumbs img.active{transform:scale(1.08);border-width:3px}
+.price{font-weight:900;font-size:18px;margin:6px 0}
+label{font-size:10px;font-weight:900;margin-top:14px;display:block;text-transform:uppercase}
+input,select{width:100%;padding:12px;border:2px solid #000;border-radius:10px;margin-top:4px;font-size:16px!important;background:#fff;color:#000;outline:none}
+.login-box{max-width:380px;margin:30px auto;background:#fff;border:2.5px solid #000;border-radius:16px;padding:18px;box-shadow:6px 6px 0 #000}
+.tabs{display:flex;gap:8px;padding:12px 4%;overflow:auto;background:#fff}
+.tab{padding:8px 14px;border-radius:999px;border:2px solid #000;background:#fff;color:#000;font-weight:800;font-size:11px;cursor:pointer;white-space:nowrap}
+.tab.active{background:#000;color:#fff;box-shadow:3px 3px 0 #000}
+.admin-wrap{max-width:1100px;margin:0 auto;padding:0 4% 40px}
+.admin-card{background:#fff;border:2px solid #000;border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:4px 4px 0 #000}
+.upload-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.upload-box{aspect-ratio:1/1;border:2px dashed #000;border-radius:12px;display:grid;place-items:center;cursor:pointer;background:#fff;font-size:10px;font-weight:800;position:relative;overflow:hidden}
+.upload-box.has span{display:none}.upload-box img.prev{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}.upload-box.has img.prev{display:block}
+.order-table{width:100%;border-collapse:collapse;font-size:11px;min-width:800px}
+.order-table th{background:#000;color:#fff;padding:10px 8px;text-align:left;position:sticky;top:0;border:1px solid #000}
+.order-table td{padding:8px;border-bottom:1.5px solid #000;border-right:1px solid #000;vertical-align:top;background:#fff}
+footer{display:flex;justify-content:space-between;padding:14px 4%;background:#000;color:#fff;font-size:11px;flex-wrap:wrap;gap:8px}
+.tiktok-float{position:fixed;bottom:20px;left:20px;z-index:60;background:#000;color:#fff;border:2px solid #fff;border-radius:999px;padding:8px 14px;display:flex;align-items:center;gap:8px;font-weight:900;font-size:12px;box-shadow:0 8px 20px rgba(0,0,0,.4), -2px 0 0 #25F4EE, 2px 0 0 #FE2C55;cursor:pointer;animation:ttFloat 2s infinite}
+@keyframes ttFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span>X</span><span>I</span><span>I</span><span>I</span></div>
+  <nav class="mini-nav">
+    <a href="#home">Home</a>
+    <a href="#shop">Shop</a>
+    <a href="#about">About</a>
+    <a href="#track">Track</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="header-right">
+    <a href="#" onclick="showAdminSection();return false" class="admin-pill">ADMIN</a>
+    <div class="cart-btn" onclick="openCart()">🛒 <span id="cartCount">0</span></div>
+  </div>
+</header>
+<div class="marquee"><div class="marquee-track"><span> XIII • ONLY THE CHOSEN KNOW • SKULL ROSE • 13 LOGO • PREMIUM BLACK </span><span> XIII • ONLY THE CHOSEN KNOW • SKULL ROSE • 13 LOGO • PREMIUM BLACK • </span></div></div>
+
+<div id="shopSection">
+<section id="home" class="hero">
+  <div class="hero-left">
+    <div class="badge"></div>
+    <h1>ONLY THE<br><span>CHOSEN KNOW</span></h1>
+    <div class="rating-big">★★★★★ <b>4.9</b> <span>• 188 Followers • 2,604 Likes • @xiii_sa •</span></div>
+  </div>
+  <div class="hero-float">
+    <div class="float-card f1" onclick="handleF1()" id="f1">XIII</div>
+    <div class="float-card f2" onclick="handleF2()" id="f2">NEW</div>
+    <div class="float-card f3" onclick="window.open('https://www.tiktok.com/@xiii_sa','_blank')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+      <span>TikTok</span>
+    </div>
+  </div>
+</section>
+
+<div id="biModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px" onclick="this.classList.add('hidden')">
+  <div style="background: linear-gradient(135deg, #111 0%, #333 100%);border:3px solid #fff;border-radius:20px;padding:20px;max-width:320px;width:100%;text-align:center;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);color:#fff" onclick="event.stopPropagation()">
+    <div style="font-family:'Anton';font-size:48px;letter-spacing:3px"><span>X</span><span style="color:#ff2a2a">I</span><span style="color:#3b82f6">I</span><span style="color:#ff2a2a">I</span></div>
+    <div style="font-size:11px;letter-spacing:6px;opacity:.6">XIII BRAND</div>
+    <hr style="margin:12px 0;border-color:rgba(255,255,255,.2)">
+    <div style="font-size:12px;text-align:left;line-height:1.8">
+      <b>ONLY THE CHOSEN KNOW. 💀</b><br>
+      📊 188 Followers • 2,604 Likes<br>
+      🔥 Top: 6,598 views • Skull Rose<br>
+      @xiii_sa • 100%
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="window.open('https://www.tiktok.com/@xiii_sa','_blank')" style="flex:1;background:#fff;color:#111;border:2px solid #fff;padding:10px;border-radius:999px;font-weight:900;cursor:pointer">TIKTOK</button>
+      <button onclick="window.open('https://wa.me/27814663550','_blank')" style="flex:1;background:#25D366;color:#fff;border:2px solid #111;padding:10px;border-radius:999px;font-weight:900;cursor:pointer">WHATSAPP</button>
+    </div>
+    <button onclick="document.getElementById('biModal').classList.add('hidden')" style="margin-top:10px;background:none;border:none;font-size:11px;font-weight:800;opacity:.7;color:#fff;cursor:pointer">CLOSE ✕</button>
+  </div>
+</div>
+
+<section id="shop" class="shop-section">
+  <div class="section-top">
+    <h3>SHOP BY CATEGORY</h3>
+    <div class="cat-filter" id="catFilter">
+      <button class="cat-btn active" onclick="filterCat('all', this)">All</button>
+      <button class="cat-btn" onclick="filterCat('Skull', this)">Skull</button>
+      <button class="cat-btn" onclick="filterCat('Logo', this)">Logo</button>
+      <button class="cat-btn" onclick="filterCat('Premium', this)">Premium</button>
+      <button class="cat-btn" onclick="filterCat('Combo', this)">Combo</button>
+    </div>
+  </div>
+  <div class="products" id="products">
+    <div style="grid-column:1/-1;text-align:center;padding:40px 20px">
+      <div style="width:40px;height:40px;border:3px solid #111;border-top-color:transparent;border-radius:50%;margin:0 auto 12px;animation:spin 0.8s linear infinite"></div>
+      <p style="font-weight:900;letter-spacing:2px;font-size:12px">PLEASE WAIT A MINUTE...</p>
+      <p style="font-size:11px;opacity:.6;margin-top:4px">XIII Is Still Cooking.<br><b>DANKO!!</b></p>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="info-section">
+  <div class="info-card"><div class="ic">💾</div><div><span style="font-weight:900">100% LOCAL STORAGE • NO FIREBASE</span><br><small>Everything saved in browser • No internet needed</small></div></div>
+  <div class="hours" id="hoursBox"></div>
+  <div class="info-card"><div class="ic">👕</div>Skull Rose Tee • 6,598 views • Top seller</div>
+  <div class="info-card"><div class="ic">🔒</div>Admin: xiii / xiii123</div>
+  <div class="info-card map"><div class="ic">📍</div>South Africa • @xiii_sa • 188 Followers</div>
+</section>
+
+<section id="track" class="track-section">
+  <h3>TRACK ORDER — XIII CODE</h3>
+  <div class="track-row"><input id="trackInput" placeholder="XIII1234"><button class="btn-black" onclick="trackOrder()">Track</button></div>
+  <div id="trackResult"></div>
+</section>
+
+<section id="contact" class="contact-section">
+  <h3>CONTACT</h3>
+  <p>TikTok: @xiii_sa</p>
+  <a class="btn-black full" href="https://wa.me/27814663550?text=Hi%20XIII%20-%20ONLY%20THE%20CHOSEN%20KNOW%20🔥">WhatsApp Us</a>
+</section>
+</div>
+
+<div id="adminSection" class="hidden">
+<header><div class="logo"><span>X</span><span>I</span><span>I</span><span>I</span></div><div class="header-right"><a href="#" onclick="showShopSection();return false" class="admin-pill">SHOP</a><button class="admin-pill" onclick="adminLogout()">LOGOUT</button></div></header>
+<div id="loginBox" class="login-box">
+  <h3>XIII ADMIN</h3>
+  <p style="font-size:10px;opacity:.6;margin-bottom:10px">NO FIREBASE — Constant login hardcoded in code</p>
+  <label>Username (constant)</label><input id="lUser" placeholder="xiii"><label>Password (constant)</label><input id="lPass" type="password" placeholder="xiii123"><p id="lError" style="color:red;font-size:11px;font-weight:800;margin-top:6px"></p>
+  <button class="btn-black full" onclick="adminLogin()">Login</button>
+  <p style="font-size:10px;opacity:.6;margin-top:8px">User: xiii | Pass: xiii123</p>
+</div>
+<div id="adminPanel" class="hidden">
+  <div class="tabs"><button class="tab active" onclick="switchTab('add',event)">+ Add Stock</button><button class="tab" onclick="switchTab('products',event)">Products (Local)</button><button class="tab" onclick="switchTab('orders',event)">Orders (Local)</button></div>
+  <div class="admin-wrap">
+    <div id="tab-add" class="admin-card">
+      <h3>Add Stock — XIII 5 Pictures</h3>
+      <label>Name *</label><input id="aName" placeholder="XIII Skull Rose Tee">
+      <label>Category *</label>
+      <select id="aCat"><option>Skull</option><option>Logo</option><option>Premium</option><option>Combo</option></select>
+      <label>Price R *</label><input id="aPrice" type="number" placeholder="280">
+      <label>Sizes Stock e.g. S:5,M:10,L:3 *</label><input id="aSizes" placeholder="S:5,M:10,L:3,XL:2">
+      <label>Upload 5 Pictures (stored as base64 in localStorage)</label>
+      <div class="upload-grid">
+        <label class="upload-box"><input type="file" accept="image/*" hidden onchange="handleImg(this,0)"><span id="up0">+ Pic 1 *</span><img id="prev0" class="prev"></label>
+        <label class="upload-box"><input type="file" accept="image/*" hidden onchange="handleImg(this,1)"><span id="up1">+ Pic 2</span><img id="prev1" class="prev"></label>
+        <label class="upload-box"><input type="file" accept="image/*" hidden onchange="handleImg(this,2)"><span id="up2">+ Pic 3</span><img id="prev2" class="prev"></label>
+        <label class="upload-box"><input type="file" accept="image/*" hidden onchange="handleImg(this,3)"><span id="up3">+ Pic 4</span><img id="prev3" class="prev"></label>
+        <label class="upload-box"><input type="file" accept="image/*" hidden onchange="handleImg(this,4)"><span id="up4">+ Pic 5</span><img id="prev4" class="prev"></label>
+      </div>
+      <button class="btn-black full" onclick="addProduct()">Publish</button>
+      <button class="btn-black full" style="margin-top:8px;background:#fff;color:#000" onclick="clearAllData()">⚠️ Clear All Local Data</button>
+    </div>
+    <div id="tab-products" class="admin-card hidden"><div id="adminProducts"></div></div>
+    <div id="tab-orders" class="admin-card hidden">
+      <div style="overflow:auto"><table class="order-table"><thead><tr><th>XIII Code</th><th>Name</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Status</th><th>Est</th><th>Date</th><th>X</th></tr></thead><tbody id="adminOrders"></tbody></table></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="productModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('productModal')">×</span>
+    <div class="gallery">
+      <img id="mImage" class="m-img">
+      <div class="thumbs" id="mThumbs"></div>
+    </div>
+    <div class="p-head"><h3 id="mName"></h3><button class="like-btn" id="likeBtn" onclick="toggleLike()">♡ <span id="likeCount">0</span></button></div>
+    <p id="mPrice" class="price"></p>
+    <p id="mCat" class="small"></p>
+    <div class="stock-bar"><div id="stockFill" style="height:8px;background:#000;border-radius:999px"></div></div>
+    <p id="mStock" class="small"></p>
+    <label>Size *</label><select id="mSize"></select>
+    <label>Qty</label><input type="number" id="mQty" value="1" min="1">
+    <p id="mQtyError" style="color:red;font-size:11px;font-weight:800"></p>
+    <button class="btn-black full" onclick="addToCart()">Add to Bag</button>
+  </div>
+</div>
+
+<div id="cartModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('cartModal')">×</span>
+    <h3>Your Bag - XIII Local</h3>
+    <div id="cartItems"></div><div id="cartTotal" class="total" style="font-weight:900;margin:10px 0"></div><hr>
+    <form onsubmit="submitOrder(event)">
+      <label>Full Name *</label><input id="custName" required>
+      <label>WhatsApp *</label><input id="custPhone" required>
+      <label>Delivery Method *</label>
+      <select id="custCampus" required>
+        <option value="">Select</option>
+        <option>Around SA</option>
+        <option>Outside - PAXI</option>
+        <option>Pickup</option>
+      </select>
+      <label>Address / Room</label><input id="custAddress">
+      <button class="btn-black full">Place Order • Get XIII Code</button>
+    </form>
+  </div>
+</div>
+
+<footer><div>XIII • @xiii_sa</div><div>Constant Admin: xiii / xiii123</div></footer>
+
+<div class="tiktok-float" onclick="window.open('https://www.tiktok.com/@xiii_sa','_blank')">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+  TikTok • 188
+</div>
+
+<script>
+// 100% NO FIREBASE - EVERYTHING LOCAL STORAGE
+const WHATSAPP="27814663550";
+const ADMIN_USER="xiii";
+const ADMIN_PASS="xiii123";
+let tempImgs=["","","","",""];
+let products=[], cart=[], current=null, activeCat='all';
+
+function toast(m){let d=document.createElement('div');d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:999px;font-size:11px;font-weight:800;z-index:9999;border:1.5px solid #fff';d.innerText=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2500)}
+function showAdminSection(){document.getElementById('shopSection').classList.add('hidden');document.getElementById('adminSection').classList.remove('hidden');window.scrollTo(0,0);}
+function showShopSection(){document.getElementById('adminSection').classList.add('hidden');document.getElementById('shopSection').classList.remove('hidden');window.scrollTo(0,0);}
+
+function getProducts(){
+  let data = localStorage.getItem('xiii_products');
+  if(!data){
+    const seed=[
+      {id:'1',name:'XIII Skull Rose Tee - White (6.5K)',price:280,cat:'Skull',images:['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600'],sizes:{'S':5,'M':10,'L':8,'XL':3},likes:65,ratings:[5,5,5,4,5],views:6598,createdAt:Date.now()},
+      {id:'2',name:'XIII 13 Logo Tee - Black',price:250,cat:'Logo',images:['https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600'],sizes:{'S':3,'M':7,'L':5},likes:12,ratings:[5,4],views:112,createdAt:Date.now()-1000},
+      {id:'3',name:'XIII Skull Rose - Model Fit (3.9K)',price:280,cat:'Skull',images:['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600'],sizes:{'M':6,'L':4,'XL':2},likes:39,ratings:[5,5,4],views:3978,createdAt:Date.now()-2000},
+      {id:'4',name:'XIII Premium Skull - Black (3K)',price:300,cat:'Premium',images:['https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600'],sizes:{'S':2,'M':5,'L':3},likes:30,ratings:[5,5,5],views:3031,createdAt:Date.now()-3000},
+      {id:'5',name:'XIII Skull Gang Tee - White (336)',price:280,cat:'Skull',images:['https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=600'],sizes:{'M':10,'L':8},likes:8,ratings:[4,5],views:336,createdAt:Date.now()-4000},
+      {id:'6',name:'XIII Triple Skull Pack',price:290,cat:'Skull',images:['https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600'],sizes:{'M':4,'L':4,'XL':2},likes:5,ratings:[5],views:224,createdAt:Date.now()-5000},
+      {id:'7',name:'XIII Street Pack - Black Combo',price:350,cat:'Combo',images:['https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600'],sizes:{'M':3,'L':3},likes:7,ratings:[5,4],views:152,createdAt:Date.now()-6000}
+    ];
+    localStorage.setItem('xiii_products', JSON.stringify(seed));
+    return seed;
+  }
+  try{return JSON.parse(data);}catch(e){return []}
+}
+function saveProducts(arr){localStorage.setItem('xiii_products', JSON.stringify(arr));}
+function getOrders(){try{return JSON.parse(localStorage.getItem('xiii_orders')||'[]');}catch(e){return []}}
+function saveOrders(arr){localStorage.setItem('xiii_orders', JSON.stringify(arr));}
+
+function loadProducts(){
+  products = getProducts();
+  render();
+  renderAdminP();
+}
+loadProducts();
+
+const hoursBox=document.getElementById('hoursBox');
+if(hoursBox){
+  const days=[['Thursday','09:00 - 18:00'],['Friday','09:00 - 18:00'],['Saturday','09:00 - 18:00'],['Sunday','Closed'],['Monday','09:00 - 18:00'],['Tuesday','09:00 - 18:00']];
+  hoursBox.innerHTML=days.map(d=>`<div><span>${d[0]}</span><span>${d[1]}</span></div>`).join('');
+}
+
+function render(){
+  const box=document.getElementById('products'); if(!box) return;
+  setTimeout(()=>{
+    if(products.length===0){
+      box.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px 20px"><p>NO PRODUCTS - Go to ADMIN to add</p></div>`;
+      return;
+    }
+    let list=activeCat==='all'?products:products.filter(p=>p.cat===activeCat);
+    if(list.length===0){box.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:20px">No products in ${activeCat}</div>`;return}
+    box.innerHTML="";
+    list.forEach((p,i)=>{
+      const total=p.sizes?Object.values(p.sizes).reduce((a,b)=>a+b,0):0;
+      const cls=total==0?'out':total<3?'low':'in';
+      box.innerHTML+=`<div class="card" style="animation-delay:${i*0.06}s" onclick="openProduct('${p.id}')">
+        <div style="position:relative"><img src="${p.images[0]}" onerror="this.src='https://via.placeholder.com/300x300/111/fff?text=XIII'"><div class="like-small">💀 ${p.likes||0}</div></div>
+        <h4>${p.name}</h4><div>R${p.price}</div><div style="font-size:10px">★★★★★ 4.9 • ${p.cat} • ${p.views||0} views</div><span class="stock ${cls}">${total==0?'OUT':total+' left'}</span>
+      </div>`;
+    });
+    document.getElementById('cartCount').innerText=cart.reduce((a,b)=>a+b.qty,0);
+  },800);
+}
+function filterCat(cat,btn){
+  activeCat=cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active'); render();
+}
+function openProduct(id){
+  current=products.find(x=>x.id==id); if(!current) return;
+  document.getElementById('mImage').src=current.images[0];
+  document.getElementById('mName').innerText=current.name;
+  document.getElementById('mPrice').innerText="R"+current.price;
+  document.getElementById('mCat').innerText=current.cat + (current.views?` • ${current.views} views`:'');
+  document.getElementById('mStock').innerText=`${Object.values(current.sizes).reduce((a,b)=>a+b,0)} left`;
+  document.getElementById('stockFill').style.width="60%";
+  const thumbs=document.getElementById('mThumbs'); thumbs.innerHTML="";
+  current.images.forEach((img,i)=>{ if(img) thumbs.innerHTML+=`<img src="${img}" class="${i==0?'active':''}" onclick="setMain('${img}',this)">`; });
+  const sel=document.getElementById('mSize'); sel.innerHTML="";
+  for(let s in current.sizes){ sel.innerHTML+=`<option value="${s}">Size ${s} - ${current.sizes[s]} left</option>`; }
+  document.getElementById('likeCount').innerText=current.likes||0;
+  document.getElementById('productModal').classList.remove('hidden');
+}
+function setMain(src,el){document.getElementById('mImage').src=src;document.querySelectorAll('.thumbs img').forEach(i=>i.classList.remove('active'));if(el)el.classList.add('active')}
+function addToCart(){
+  const size=document.getElementById('mSize').value; const qty=parseInt(document.getElementById('mQty').value);
+  if(!size){toast('Select size');return}
+  if(qty>current.sizes[size]){document.getElementById('mQtyError').innerText="Only "+current.sizes[size]+" left";return}
+  cart.push({id:current.id,name:current.name,size,qty,price:current.price}); closeModal('productModal'); render(); toast('Added 🛒'); openCart();
+}
+function openCart(){
+  if(cart.length==0){toast('Bag empty');return}
+  let html="",total=0; cart.forEach((c,i)=>{total+=c.price*c.qty; html+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:12px"><span>${c.name} Size ${c.size} x${c.qty}</span><span>R${c.price*c.qty} <a href="#" onclick="removeCart(${i});return false" style="color:red">x</a></span></div>`});
+  document.getElementById('cartItems').innerHTML=html; document.getElementById('cartTotal').innerText="Total: R"+total; document.getElementById('cartModal').classList.remove('hidden');
+}
+function removeCart(i){cart.splice(i,1);render();if(cart.length==0)closeModal('cartModal');else openCart()}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function submitOrder(e){
+  e.preventDefault();
+  const name=document.getElementById('custName').value, phone=document.getElementById('custPhone').value, del=document.getElementById('custCampus').value, addr=document.getElementById('custAddress').value;
+  const code="XIII"+Math.floor(1000+Math.random()*9000); let list="",total=0;
+  cart.forEach(c=>{list+=`• ${c.name} Size ${c.size} x${c.qty}=R${c.price*c.qty}\n`;total+=c.price*c.qty});
+  const order={code,name,phone,delivery:del,address:addr,items:[...cart],total,status:"Pending",est:"2-3 days",date:new Date().toLocaleString(), createdAt: Date.now()};
+  let orders=getOrders(); orders.push(order); saveOrders(orders);
+  let prods=getProducts();
+  for(let c of cart){
+    let prod=prods.find(p=>p.id==c.id);
+    if(prod){prod.sizes[c.size]-=c.qty;}
+  }
+  saveProducts(prods);
+  products=prods; render();
+  const msg=`🔥 XIII ORDER ${code} 🔥 ONLY THE CHOSEN KNOW (LOCAL STORAGE)\n${list}\nTotal R${total}\nName: ${name}\nPhone: ${phone}\nDelivery: ${del}\nAddr: ${addr}\nTrack: ${code}`;
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,'_blank');
+  cart=[];render();closeModal('cartModal');e.target.reset(); alert("XIII Code: "+code+" — Saved LOCALLY! DANKO!!");
+  renderAdminO();
+}
+function trackOrder(){
+  const code=document.getElementById('trackInput').value.trim().toUpperCase();
+  if(!code){toast('Enter XIII code');return}
+  let orders=getOrders();
+  let order=orders.find(o=>o.code==code);
+  const box=document.getElementById('trackResult');
+  if(!order){box.innerHTML=`<div style="background:#fff;border:2px solid #111;padding:10px;border-radius:10px;margin-top:10px">❌ ${code} not found (local)</div>`;return}
+  box.innerHTML=`<div style="background:#fff;border:2px solid #111;padding:12px;border-radius:12px;margin-top:10px"><b>${order.code}</b> - ${order.status} • Est ${order.est}<br>Total R${order.total}<br><small>${order.date}</small></div>`;
+}
+function toggleLike(){}
+function handleF1(){
+  const el=document.getElementById('f1');
+  el.classList.remove('burst'); void el.offsetWidth; el.classList.add('burst');
+  const colors=['#111','#ff2a2a','#3b82f6','#fff'];
+  for(let i=0;i<20;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=(el.getBoundingClientRect().left + Math.random()*60)+'px';
+    c.style.top=(el.getBoundingClientRect().top)+'px';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.borderRadius=Math.random()>.5?'50%':'2px';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),1300);
+  }
+  if(navigator.vibrate) navigator.vibrate(50);
+  setTimeout(()=>document.getElementById('biModal').classList.remove('hidden'),300);
+}
+function handleF2(){
+  const el=document.getElementById('f2');
+  el.classList.remove('newPulse'); void el.offsetWidth; el.classList.add('newPulse');
+  if(navigator.vibrate) navigator.vibrate([30,30,60]);
+  const prodSection=document.getElementById('products');
+  if(prodSection){
+    prodSection.scrollIntoView({behavior:'smooth',block:'start'});
+    prodSection.style.transition='0s';
+    prodSection.style.filter='brightness(1.5)';
+    setTimeout(()=>{prodSection.style.transition='.6s';prodSection.style.filter='brightness(1)'},150);
+  }
+  const toastEl=document.createElement('div');
+  toastEl.innerText='🔥 NEW DRIP LOADED • XIII Skull Collection!';
+  toastEl.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:999px;font-size:11px;font-weight:900;z-index:999;border:2px solid #fff;box-shadow:0 8px 20px rgba(0,0,0,.3)';
+  document.body.appendChild(toastEl);
+  setTimeout(()=>toastEl.remove(),2500);
+  filterCat('Skull', document.querySelector('.cat-btn:nth-child(2)'));
+}
+function handleImg(input,idx){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas'); const maxW=800; let w=img.width,h=img.height; if(w>maxW){h=h*(maxW/w);w=maxW} canvas.width=w; canvas.height=h; canvas.getContext('2d').drawImage(img,0,0,w,h);
+      tempImgs[idx]=canvas.toDataURL('image/jpeg',0.7);
+      document.getElementById('prev'+idx).src=tempImgs[idx]; document.getElementById('prev'+idx).style.display='block'; document.getElementById('up'+idx).parentElement.classList.add('has');
+    }; img.src=e.target.result;
+  }; reader.readAsDataURL(file);
+}
+function adminLogin(){
+  const user = document.getElementById('lUser').value.trim();
+  const pass = document.getElementById('lPass').value.trim();
+  if(user===ADMIN_USER && pass===ADMIN_PASS){
+    localStorage.setItem('xiii_admin_logged','true');
+    showAdmin(); toast("✅ Local Admin Logged In");
+  }else{
+    document.getElementById('lError').innerText = "Wrong! Use xiii / xiii123 (constant, not Firebase)";
+  }
+}
+function adminLogout(){ localStorage.removeItem('xiii_admin_logged'); location.reload(); }
+function switchTab(t,event){
+  document.querySelectorAll('.admin-card').forEach(c=>c.classList.add('hidden'));
+  document.getElementById('tab-'+t).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  if(event) event.target.classList.add('active');
+  if(t=='products')renderAdminP();if(t=='orders')renderAdminO()
+}
+function showAdmin(){document.getElementById('loginBox').classList.add('hidden');document.getElementById('adminPanel').classList.remove('hidden');renderAdminP();renderAdminO()}
+function addProduct(){
+  const name=document.getElementById('aName').value,price=parseInt(document.getElementById('aPrice').value),cat=document.getElementById('aCat').value,sizesStr=document.getElementById('aSizes').value;
+  const imgs=tempImgs.filter(x=>x); if(!name||!price||imgs.length==0){alert("Need Name, Price, at least 1 pic");return}
+  let sizes={}; sizesStr.split(',').forEach(p=>{let [k,v]=p.split(':');if(k)sizes[k.trim().toUpperCase()]=parseInt(v)||0});
+  const newProduct={id:Date.now().toString(),name,price,cat,images:imgs,sizes,likes:0,ratings:[],views:Math.floor(100+Math.random()*6000), createdAt:Date.now()};
+  let prods=getProducts(); prods.push(newProduct); saveProducts(prods);
+  products=prods;
+  toast('✅ XIII Published to LocalStorage!');
+  tempImgs=["","","","",""]; document.querySelectorAll('.prev').forEach(i=>{i.style.display='none';i.src=''}); document.querySelectorAll('.upload-box').forEach(b=>b.classList.remove('has'));
+  document.getElementById('aName').value=""; document.getElementById('aPrice').value=""; document.getElementById('aSizes').value="";
+  render(); renderAdminP();
+}
+function renderAdminP(){const box=document.getElementById('adminProducts');if(!box)return;let prods=getProducts();box.innerHTML="";prods.forEach(p=>{box.innerHTML+=`<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #eee"><img src="${p.images[0]}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;border:1.5px solid #111"><span style="flex:1"><b>${p.name}</b> (${p.cat})<br><small>R${p.price} • ${Object.entries(p.sizes||{}).map(([k,v])=>k+':'+v).join(', ')} • ${p.views||0} views</small></span><button onclick="deleteProd('${p.id}')" style="color:red;border:none;background:none;font-weight:800;cursor:pointer">🗑️</button></div>`})}
+function deleteProd(id){ if(!confirm("Delete XIII product locally?")) return; let prods=getProducts(); prods=prods.filter(p=>p.id!==id); saveProducts(prods); products=prods; render(); renderAdminP(); toast("Deleted Locally ✅"); }
+function renderAdminO(){
+  const tbody=document.getElementById('adminOrders');if(!tbody)return;
+  let orders=getOrders().sort((a,b)=>b.createdAt-a.createdAt);
+  tbody.innerHTML="";orders.forEach(o=>{tbody.innerHTML+=`<tr><td><b>${o.code}</b></td><td>${o.name}</td><td>${o.phone}</td><td>${o.address||''}</td><td>${o.items.map(i=>`${i.name} ${i.size} x${i.qty}`).join('<br>')}</td><td>R${o.total}</td><td><select onchange="changeStatus('${o.code}',this.value)"><option ${o.status=='Pending'?'selected':''}>Pending</option><option ${o.status=='Confirmed'?'selected':''}>Confirmed</option><option ${o.status=='Packed'?'selected':''}>Packed</option><option ${o.status=='Shipped'?'selected':''}>Shipped</option><option ${o.status=='Delivered'?'selected':''}>Delivered</option></select></td><td>${o.est}</td><td>${o.date}</td><td><button onclick="deleteOrder('${o.code}')" style="color:red;border:none;background:none;cursor:pointer">✕</button></td></tr>`})
+}
+function changeStatus(code,val){let orders=getOrders(); let o=orders.find(x=>x.code==code); if(o){o.status=val; saveOrders(orders); renderAdminO();}}
+function deleteOrder(code){ if(!confirm("Delete order locally?")) return; let orders=getOrders(); orders=orders.filter(o=>o.code!==code); saveOrders(orders); renderAdminO(); }
+function clearAllData(){ if(!confirm("Clear ALL XIII local data? Products + Orders will be deleted!")) return; localStorage.removeItem('xiii_products'); localStorage.removeItem('xiii_orders'); location.reload(); }
+
+if(localStorage.getItem('xiii_admin_logged')==='true'){
+  setTimeout(()=>{ if(document.getElementById('adminSection') && !document.getElementById('adminSection').classList.contains('hidden')) showAdmin(); },500);
+}
+</script>
+</body>
+</html>
